@@ -1,115 +1,154 @@
-# YOUWARE.md
+# ARLO CONSTRUCTION Website - Developer Guide
 
-This file provides guidance to YOUWARE Agent (youware.com) when working with code in this repository.
+This project is a modern, responsive construction company website built with React, TypeScript, Vite, and Tailwind CSS.
 
 ## Project Overview
 
-- **Platform**: React + TypeScript Modern Web Application
-- **Languages**: English & Somali (i18n support)
-- **Backend**: Youbase (Hono + Drizzle ORM on Cloudflare Workers)
-- **Database**: Youbase D1 (SQLite)
-- **Auth**: Youbase Auth
-- **State Management**: Zustand
-- **Styling**: Tailwind CSS
-- **Routing**: React Router DOM
-- **SEO**: React Helmet Async
-
-## Architecture & Directory Structure
-
-```
-src/
-├── components/
-│   ├── common/          # Shared components (Navbar, Footer, Layout, SEO, SocialShare)
-│   ├── cv/              # CV specific components
-│   │   ├── templates/   # CV Templates (Modern, Classic, Minimal)
-│   │   ├── CVPreview.tsx # Template renderer
-│   │   └── AIAssistant.tsx # AI Modal
-├── hooks/
-│   └── useAnalytics.ts  # Analytics tracking hook
-├── i18n/
-│   ├── locales/         # Translation files (en.ts, so.ts)
-│   └── config.ts        # i18n configuration
-├── lib/
-│   └── youbase.ts       # Youbase client initialization
-├── pages/
-│   ├── auth/            # Authentication pages (Login)
-│   ├── dashboard/       # Private user pages (Dashboard, CVBuilder, CoverLetterBuilder)
-│   └── public/          # Public informational pages (Home, About, etc.)
-├── store/
-│   ├── useAuthStore.ts  # Authentication state (Synced with Youbase)
-│   └── useCVStore.ts    # CV/Cover Letter data state (API calls)
-├── types/
-│   └── cv.ts            # Shared TypeScript interfaces for CV data
-├── App.tsx              # Main router configuration (Wrapped with HelmetProvider)
-└── main.tsx             # Entry point with i18n init
-
-backend/
-├── src/
-│   └── index.ts         # Hono API (Routes for CVs, Cover Letters, AI, Analytics, and OG Images)
-```
-
-## Development Commands
-
-- **Install dependencies**: `npm install`
-- **Start dev server**: `npm run dev`
-- **Build for production**: `npm run build`
-- **Deploy Backend**: `cd backend && npx edgespark deploy`
-- **Lint**: `npm run lint`
-
-## Database Schema
-
-### CVs Table
-- `id`: Integer (PK)
-- `user_id`: Text (Indexed)
-- `title`: Text
-- `type`: Text (general, job, scholarship)
-- `content`: Text (JSON) - Includes `template` field ('modern', 'classic', 'minimal')
-- `created_at`: Integer
-- `updated_at`: Integer
-
-### Cover Letters Table
-- `id`: Integer (PK)
-- `user_id`: Text (Indexed)
-- `title`: Text
-- `tone`: Text (formal, professional, friendly)
-- `content`: Text (JSON)
-- `created_at`: Integer
-- `updated_at`: Integer
-
-### Analytics Events Table
-- `id`: Integer (PK)
-- `type`: Text (e.g., 'page_view')
-- `path`: Text
-- `meta`: Text (JSON)
-- `created_at`: Integer
+- **Client**: ARLO CONSTRUCTION
+- **Industry**: Construction (Residential, Commercial, Renovation)
+- **Location**: Puntland (Garowe, Bosaso, Laascanood)
+- **Tech Stack**: React 18, TypeScript, Vite, Tailwind CSS, React Router DOM, Lucide React, i18next, Framer Motion
+- **Backend**: Hono + Drizzle ORM (Youbase)
+- **Database**: SQLite (D1) via Youbase
 
 ## Key Features
 
-### CV Builder
-- **Templates**: Modern, Classic, Minimal.
-- **Sections**: Personal Info (including Logo, WhatsApp), Experience, Education, Skills, Languages, Hobbies, Certificates, References.
-- **PDF Export**: Client-side PDF generation using `html2pdf.js`.
-- **AI Assistant**: Generate professional summaries and content using OpenAI. Integrated into Summary, Experience, and Education sections.
+- **Responsive Design**: Fully mobile-friendly layout with sticky navigation and stacked mobile views.
+- **Multi-page Structure**: Home, Projects, History, Consultation, Contact, Dashboard.
+- **Multilingual Support**: English and Somali (via `react-i18next`).
+- **Project Gallery**: Showcase of completed and ongoing projects with modern cards, hover effects, and modal details.
+- **Interactive Map**: Google Map integration showing head office location.
+- **Cost Calculator**: Client-facing construction cost estimator with quote request functionality.
+- **Madina Factory**: Dedicated section for brick manufacturing and ordering.
+- **Admin Dashboard**: Private area for project, material, quote, and tracking management (Login required).
+- **WhatsApp Integration**: Global floating contact button.
 
-### SEO & Social
-- **SEO Component**: `src/components/common/SEO.tsx` handles JSON-LD (WebApplication, Organization) and Meta tags.
-- **Default OG Image**: `public/og-banner.jpg` (1200x630 JPEG) used as fallback.
-- **Dynamic OG Images**: Backend endpoint `GET /api/public/og?title=...&type=...` generates SVG images on the fly.
-- **Social Sharing**: `src/components/common/SocialShare.tsx` provides buttons for WhatsApp, Facebook, Twitter.
+## Design System (Modern Industrial)
 
-### Localization
-- Translations are stored in `src/i18n/locales/`.
-- Use `useTranslation` hook in components.
+- **Colors**:
+  - **Backgrounds**: Zinc 900 (`#18181B`) for dark sections, Zinc 50 (`#FAFAFA`) for light sections.
+  - **Primary Text**: Zinc 900 (`#18181B`) or White.
+  - **Accent**: Amber 500/600 (`#F59E0B` / `#D97706`) - used for buttons, highlights, and icons.
+  - **Borders**: Zinc 200 (`#E4E4E7`) or Zinc 800 (`#27272A`).
+- **Typography**:
+  - **Headings**: Bold, large scale, tight tracking.
+  - **Body**: Clean, readable, generous line height.
+- **Components**:
+  - **Cards**: Clean backgrounds, subtle borders, hover lift effects, soft shadows.
+  - **Buttons**: Rounded corners, solid accent colors or outline styles.
+  - **Animations**: `framer-motion` used for scroll-triggered fades, slides, and hover interactions.
 
-### Design System
-- **Colors**: Blue (Primary), Green (Secondary/Success), Gray (Neutral).
-- **Typography**: Clean, professional sans-serif (Inter/System default).
-- **Icons**: Lucide React.
-- **Logo**: `src/assets/gurmad-logo.png` used in Navbar, Footer, and Auth pages. Includes title and tagline in Navbar.
-- **Social Media**: Integrated Facebook and TikTok links in Navbar, Footer, and Contact page.
-- **Contact**: Updated contact details, added Floating WhatsApp button, and used WhatsApp brand icon in Contact page.
-- **Homepage**: Updated with Trust Line, "How It Works" section, and improved CTA hierarchy.
+## Development Commands
 
-### Analytics
-- **Tracking**: Custom privacy-friendly analytics using `useAnalytics` hook.
-- **Backend**: Stores events in `analytics_events` table via `POST /api/public/analytics`.
+### Setup & Run
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+### Linting
+```bash
+# Run ESLint
+npm run lint
+```
+
+## Project Structure
+
+```
+src/
+├── components/        # Reusable UI components
+│   ├── Header.tsx     # Sticky navigation with Top Bar & Mobile Menu
+│   ├── Footer.tsx     # Modern footer with social links & quick access
+│   ├── HeroSection.tsx # Full-screen video hero with gradient overlay
+│   ├── ServicesSection.tsx # Grid layout with hover-interactive cards
+│   ├── FeaturedProjects.tsx # Masonry-style grid with modal details
+│   ├── ProjectsPreview.tsx # (Legacy/Alternative) Preview component
+│   ├── MapSection.tsx # Google Map & Contact Details
+│   ├── CostCalculator.tsx # Construction Cost Estimator
+│   ├── MadinaFactorySection.tsx # Factory Info & Order Form
+│   ├── AboutSection.tsx
+│   └── WhatsAppButton.tsx # Global floating button
+├── components/dashboard/ # Dashboard specific components
+├── pages/             # Page components
+│   ├── HomePage.tsx   # Assembles all main sections
+│   ├── ProjectsPage.tsx
+│   ├── HistoryPage.tsx
+│   ├── ConsultationPage.tsx
+│   ├── ContactPage.tsx
+│   └── DashboardPage.tsx # Admin Dashboard with Login & Management
+├── locales/           # Translation files
+│   ├── en/            # English translations
+│   └── so/            # Somali translations
+├── assets/            # Static assets (images moved to public/assets/images)
+├── App.tsx            # Main app component with routing
+├── i18n.ts            # i18n configuration
+└── main.tsx           # Entry point
+```
+
+## Backend (Youbase)
+
+The backend is located in `backend/` and deployed to Youbase.
+
+### Structure
+```
+backend/
+├── src/
+│   ├── index.ts              # API Routes
+│   └── __generated__/        # Drizzle Schema
+├── package.json
+└── wrangler.toml
+```
+
+### Database Schema
+- **projects**: `id`, `name`, `location`, `category`, `status`, `progress`, `start_date`, `notes` (JSON), `materials` (JSON)
+- **materials**: `id`, `name`, `unit`, `stock`, `status`
+- **quotes**: `id`, `location`, `length`, `width`, `building_type`, `finish_type`, `estimated_cost`, `contact_info` (JSON), `status`, `created_at`
+
+### API Routes
+- `GET /api/public/projects`: Public access to projects
+- `POST /api/projects`: Create project (Auth required)
+- `PUT /api/projects/:id`: Update project (Auth required)
+- `DELETE /api/projects/:id`: Delete project (Auth required)
+- `GET /api/public/materials`: Public access to materials
+- `POST /api/materials`: Create material (Auth required)
+- `PUT /api/materials/:id`: Update material (Auth required)
+- `DELETE /api/materials/:id`: Delete material (Auth required)
+- `POST /api/quotes`: Submit new quote request (Public)
+- `GET /api/quotes`: List all quotes (Auth required)
+- `PUT /api/quotes/:id`: Update quote status (Auth required)
+
+### Deployment
+```bash
+cd backend
+npx edgespark deploy
+```
+
+## Admin Dashboard
+
+- **Route**: `/dashboard`
+- **Auth**: Uses Youbase Auth (Managed UI).
+- **Features**:
+  - **Project Management**: Add/Edit projects, update status (Ongoing, Completed, Delayed).
+  - **Materials Management**: Track stock levels (Cement, Steel, Bricks).
+  - **Quote Requests**: Review and manage client quote requests.
+  - **Project Tracking**: Monitor progress and add notes.
+- **Data Persistence**: Connected to Youbase D1 Database.
+
+## SEO Configuration
+
+- **Canonical URL**: `https://arloconstruction.com/`
+- **Meta Tags**: Open Graph (Facebook/LinkedIn) and Twitter Cards configured in `index.html`.
+- **Social Image**: Uses homepage hero background (`/assets/images/hero-bg.jpg`).
+
+## Deployment
+
+The project is built with Vite and outputs to `dist/`. It can be deployed to any static hosting service (Vercel, Netlify, Cloudflare Pages).
